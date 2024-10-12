@@ -33,12 +33,27 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col font-[family-name:var(--font-geist-sans)]`}
         >
           <SignedIn>
-            <UserButton />
+            <header className="bg-gray-800">
+              <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 flex h-16 items-center">
+                <UserButton />
+              </div>
+            </header>
           </SignedIn>
-          {children}
+          <div className="flex-1 flex flex-col">
+            {children}
+          </div>
+          <SignedIn>
+            <footer className="bg-gray-800">
+              <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 flex h-16 items-center">
+                <span className="text-white">
+                  © {new Date().getFullYear()} Swatt Lasagna Internal Tool. All rights reserved.
+                </span>
+              </div>
+            </footer>
+          </SignedIn>
         </body>
       </html>
     </ClerkProvider>

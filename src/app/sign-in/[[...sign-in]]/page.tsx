@@ -1,9 +1,14 @@
-import { SignIn } from '@clerk/nextjs'
+import { SignIn } from '@clerk/nextjs';
 
 export default function Page() {
   return (
-    <div className="flex items-center justify-center min-h-screen p-8 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <SignIn />
-    </div>
-  )
+    <main className="flex-1 flex items-center justify-center p-8 sm:p-20">
+      <section aria-labelledby="sign-in-title">
+        <h1 id="sign-in-title" className="sr-only">Sign In</h1>
+        <article>
+          <SignIn />
+        </article>
+      </section>
+    </main>
+  );
 }
