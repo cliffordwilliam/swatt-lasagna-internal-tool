@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+ 
+datasource db {
+  provider = "postgresql"
+  // Uses connection pooling
+  url = env("POSTGRES_PRISMA_URL")
+  // Uses direct connection, ⚠️ make sure to keep this to `POSTGRES_URL_NON_POOLING`
+  // or you'll have dangling databases from migrations
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model Item {
+    id        String          @id @default(cuid())
+    nama      String
+    tipe      String
+    harga     Int
+    orders    OrderItem[]
+    createdAt DateTime        @default(now())
+    updatedAt DateTime        @updatedAt
+}
+
+enum OrderStatus {
+  downpayment
+  belum_bayar
+  lunas
+}
+
+model Order {
+    id               String          @id @default(cuid())
+    pembeli          Pembeli         @relation(fields: [pembeliId], references: [id])
+    pembeliId        String
+    penerima         Penerima        @relation(fields: [penerimaId], references: [id])
+    penerimaId       String
+    tanggalOrder     DateTime
+    tanggalKirim     DateTime
+    totalPembelian   Float
+    pickupDelivery   PickupDelivery  @relation(fields: [pickupDeliveryId], references: [id])
+    pickupDeliveryId String
+    ongkir           Float
+    grandTotal       Float
+    pembayaran       Pembayaran      @relation(fields: [pembayaranId], references: [id])
+    pembayaranId     String
+    items            OrderItem[]
+    status           OrderStatus
+    createdAt        DateTime        @default(now())
+    updatedAt        DateTime        @updatedAt
+}
+
+model OrderItem {
+    quantity Int
+    order    Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    orderId  String
+    item     Item   @relation(fields: [itemId], references: [id])
+    itemId   String
+
+    @@id([orderId, itemId])
+}
+
+model Pembeli {
+    id        String   @id @default(cuid())
+    nama      String
+    alamat    String
+    noHp      String
+    orders    Order[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Penerima {
+    id        String   @id @default(cuid())
+    nama      String
+    alamat    String
+    noHp      String
+    orders    Order[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model Pembayaran {
+    id        String   @id @default(cuid())
+    name      String   @unique
+    orders    Order[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model PickupDelivery {
+    id        String   @id @default(cuid())
+    name      String   @unique
+    orders    Order[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
