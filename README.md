@@ -2,7 +2,7 @@
 
 1. update the schema
 2. update the seed to reflect schema
-3. delete all rows
+3. delete all tables
 4. push new schema to remote database
 5. generate client again
 5. seed
@@ -14,6 +14,11 @@ Vercel should set the node_env to dev when building from dev branch when buildin
 ```bash
 NODE_ENV=development npm run update
 ```
+
+## Before Pushing Dev
+
+- Make sure that I have ran the above first
+- Then I can push dev
 
 ## Peek Into Development Database
 
