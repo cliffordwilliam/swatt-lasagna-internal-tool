@@ -6,7 +6,7 @@ export default async function Home() {
   return (
     <div className="flex-1">
       <div className='container mx-auto'>
-        <h1>PROCESS ENV NODE_ENV: {process.env.NODE_ENV}</h1>
+        <h1>PROCESS ENV VERCEL_ENV: {process.env.VERCEL_ENV}</h1>
         <ul>
           {items.map(item => (
             <li key={item.id}>{item.nama}</li>

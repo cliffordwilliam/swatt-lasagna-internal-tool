@@ -4,7 +4,7 @@ const prisma = new PrismaClient();
 
 (async () => {
     try {
-        if (process.env.NODE_ENV !== 'development') {
+        if (process.env.VERCEL_ENV !== 'development') {
             throw new Error('This script should only be run in development!');
         }
 

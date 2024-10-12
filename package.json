@@ -7,12 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "vercel-build": "npx prisma generate && next build",
     "delete": "dotenv -e .env.development.local -- node ./prisma/purge.js",
     "push": "dotenv -e .env.development.local -- npx prisma db push",
     "generate": "npx prisma generate",
     "seed": "dotenv -e .env.development.local -- npx prisma db seed",
     "update": "npm run delete && npm run push && npm run generate && npm run seed",
-    "vercel-build": "npx prisma generate && next build",
     "peek": "dotenv -e .env.development.local -- npx prisma studio"
   },
   "prisma": {
