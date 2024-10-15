@@ -1,13 +1,15 @@
-import { auth } from '@clerk/nextjs/server'
-import { NextResponse, NextRequest } from 'next/server'
+import { auth } from '@clerk/nextjs/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { prisma } from "@/lib/prisma";
+
+export const dynamic = 'force-dynamic';  // Force dynamic rendering
 
 export async function GET(request: NextRequest) {
     try {
-        const { userId } = auth()
+        const { userId } = auth();
 
         if (!userId) {
-            return NextResponse.json({ error: 'Error: No signed in user' }, { status: 401 })
+            return NextResponse.json({ error: 'Error: No signed in user' }, { status: 401 });
         }
 
         // TODO: Make this dynamic later when I need to use this again other than the order form
@@ -15,22 +17,21 @@ export async function GET(request: NextRequest) {
         const nama = searchParams.get('nama') || '';
         const data = await prisma.item.findFirst({
             where: {
-                nama : {
+                nama: {
                     contains: nama,
                     mode: 'insensitive',
                 },
-            }
+            },
         });
 
         return NextResponse.json(data, { status: 200 });
     } catch (error) {
         console.error('Error occurred:', error);
-    
+
         return NextResponse.json({
             error: error instanceof Error ? error.message : 'Unknown Error'
         }, {
             status: 500
         });
     }
-    
 }
