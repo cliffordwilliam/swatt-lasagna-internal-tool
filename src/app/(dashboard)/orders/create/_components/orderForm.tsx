@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useItems } from "@/hooks/useItems";
-import { formatHarga } from '@/utils/formatHarga';
 import { FoundItemCard } from "./foundItemCard";
 import { CartItemCard } from "./cartItemCard";
 import { Label } from "@/components/ui/label"
