@@ -35,6 +35,7 @@ export function OrderForm() {
             }
         });
         setQuantity(1); // Reset quantity after adding to cart
+        setSelectedItem(null); // Reset selected
     }
 
     const updateCartQuantity = (id: string, newQuantity: number) => {
@@ -94,11 +95,6 @@ export function OrderForm() {
         );
     }
 
-    const handleFrameworkSelect = (value: string) => {
-        const foundItem = items?.find(item => item.nama === value) || null;
-        setSelectedItem(foundItem);
-    }
-
     const transformedItems = items?.map((item) => ({
         value: item.nama,
         label: item.nama,
@@ -118,7 +114,9 @@ export function OrderForm() {
                             <Label htmlFor="item-name">Nama Item</Label>
                             <ComboboxDemo
                                 frameworks={transformedItems}
-                                onSelect={handleFrameworkSelect}
+                                setSelectedItem={setSelectedItem}
+                                selectedItem={selectedItem}
+                                items={items}
                             />
                         </div>
                     </CardContent>

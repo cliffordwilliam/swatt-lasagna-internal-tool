@@ -1,5 +1,5 @@
 "use client"
-
+// TODO: Refacor this to be dynamic not only the items in order form
 import * as React from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 
@@ -18,6 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { Item } from '@prisma/client';
 
 // Define the type for individual framework items
 interface Framework {
@@ -25,16 +26,22 @@ interface Framework {
   label: string
 }
 
-// Define the props type for the ComboboxDemo component
-interface ComboboxDemoProps {
-  frameworks?: Framework[] // Optional prop
-  onSelect?: (value: string) => void // Optional callback prop
-}
-
 // The component now uses the defined props interface
-export function ComboboxDemo({ frameworks = [], onSelect }: ComboboxDemoProps) {
+export function ComboboxDemo(
+  { 
+    frameworks = [], 
+    setSelectedItem,
+    selectedItem,
+    items,
+   }: 
+   {
+    frameworks?: Framework[] // Optional prop
+    setSelectedItem: (selectedItem: Item | null) => void;
+    selectedItem: Item | null;
+    items: Item[] | undefined;
+  }
+) {
   const [open, setOpen] = React.useState(false)
-  const [value, setValue] = React.useState("")
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -45,8 +52,8 @@ export function ComboboxDemo({ frameworks = [], onSelect }: ComboboxDemoProps) {
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {value
-            ? frameworks.find((framework) => framework.value === value)?.label
+          {selectedItem
+            ? frameworks.find((framework) => framework.value === selectedItem.nama)?.label
             : "Pilih Item..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -55,23 +62,25 @@ export function ComboboxDemo({ frameworks = [], onSelect }: ComboboxDemoProps) {
         <Command>
           <CommandInput placeholder="Cari Item..." />
           <CommandList>
-            <CommandEmpty>No framework found.</CommandEmpty>
+            <CommandEmpty>Item kosong.</CommandEmpty>
             <CommandGroup>
               {frameworks.map((framework) => (
                 <CommandItem
                   key={framework.value}
                   value={framework.value}
                   onSelect={(currentValue) => {
-                    setValue(currentValue === value ? "" : currentValue)
+                    console.log(currentValue, framework.value)
+                    if (currentValue === framework.value) {
+                      const foundItem = items?.find(item => item.nama === currentValue) || null;
+                      setSelectedItem(foundItem)
+                    }
                     setOpen(false)
-                    // Call the passed onSelect prop with the selected value
-                    if (onSelect) onSelect(currentValue)
                   }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === framework.value ? "opacity-100" : "opacity-0"
+                      selectedItem?.nama === framework.value ? "opacity-100" : "opacity-0"
                     )}
                   />
                   {framework.label}
