@@ -24,6 +24,13 @@ export async function GET(request: NextRequest) {
 
         return NextResponse.json(data, { status: 200 });
     } catch (error) {
-        return NextResponse.json({ error: 'Internal Error' }, { status: 500 })
+        console.error('Error occurred:', error);
+    
+        return NextResponse.json({
+            error: error instanceof Error ? error.message : 'Unknown Error'
+        }, {
+            status: 500
+        });
     }
+    
 }

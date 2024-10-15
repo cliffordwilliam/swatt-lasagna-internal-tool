@@ -3,7 +3,6 @@ import { Item } from '@prisma/client';
 import clsx from 'clsx';
 import { Skeleton } from "@/components/ui/skeleton"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import {
     Card,
     CardContent,
