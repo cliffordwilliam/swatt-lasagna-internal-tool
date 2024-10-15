@@ -69,7 +69,6 @@ export function ComboboxDemo(
                   key={framework.value}
                   value={framework.value}
                   onSelect={(currentValue) => {
-                    console.log(currentValue, framework.value)
                     if (currentValue === framework.value) {
                       const foundItem = items?.find(item => item.nama === currentValue) || null;
                       setSelectedItem(foundItem)
