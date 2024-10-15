@@ -12,7 +12,7 @@ Delete all row works if node_env is in development
 Vercel should set the node_env to dev when building from dev branch when building
 
 ```bash
-NODE_ENV=development npm run update
+VERCEL_ENV=development npm run update
 ```
 
 ## Before Pushing Dev

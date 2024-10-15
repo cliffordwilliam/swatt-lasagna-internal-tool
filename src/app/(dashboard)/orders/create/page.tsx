@@ -1,15 +1,13 @@
-import { Suspense } from 'react'
-import ItemFields from './_components/itemField/itemField'
-import ItemFieldSkeleton from './_components/itemField/itemFieldSkeleton'
-// cached and revalidated at most every hour
-export const revalidate = 3600
+import { OrderForm } from './_components/orderForm'
 
-export default async function Home() {
-    // Return the form
-    // TODO: If forms gets too big move it to components
+export default async function Page() {
     return (
-        <Suspense fallback={<ItemFieldSkeleton />}>
-            <ItemFields />
-        </Suspense>
+        <div className='h-full py-6 grid gap-4'>
+            <h1 className="whitespace-nowrap text-2xl font-semibold tracking-tight">
+                Buat Order Baru
+            </h1>
+            <p className="text-muted-foreground">Buat Order baru di sini, cari nama item nya dulu.</p>
+            <OrderForm />
+        </div>
     );
 }

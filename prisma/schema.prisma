@@ -14,7 +14,6 @@ datasource db {
 model Item {
     id        String          @id @default(cuid())
     nama      String
-    tipe      String
     harga     Int
     orders    OrderItem[]
     createdAt DateTime        @default(now())

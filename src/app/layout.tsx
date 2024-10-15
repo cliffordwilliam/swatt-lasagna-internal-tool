@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-
-import {
-  ClerkProvider,
-  SignedIn,
-  UserButton
-} from '@clerk/nextjs'
+import { ClerkProvider } from '@clerk/nextjs'
+import { ThemeProvider } from "@/components/theme-provider"
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -31,29 +27,18 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col font-[family-name:var(--font-geist-sans)]`}
+          className={`${geistSans.variable} ${geistMono.variable} antialiased h-dvh flex flex-col font-[family-name:var(--font-geist-sans)]`}
         >
-          <SignedIn>
-            <header className="bg-gray-800">
-              <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 flex h-16 items-center">
-                <UserButton />
-              </div>
-            </header>
-          </SignedIn>
-          <div className="flex-1 flex flex-col">
+          <ThemeProvider
+              attribute="class"
+              defaultTheme="dark"
+              enableSystem
+              disableTransitionOnChange
+            >
             {children}
-          </div>
-          <SignedIn>
-            <footer className="bg-gray-800">
-              <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8 flex h-16 items-center">
-                <span className="text-white">
-                  © {new Date().getFullYear()} Swatt Lasagna Internal Tool. All rights reserved.
-                </span>
-              </div>
-            </footer>
-          </SignedIn>
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>
