@@ -10,6 +10,8 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
+import clsx from 'clsx';
+
 
 export function CartItemCard({
     cart,
@@ -39,17 +41,37 @@ export function CartItemCard({
                             <p className="text-sm text-muted-foreground">{formatHarga(item.price)}</p>
                         </div>
                         <div className="flex items-center gap-2">
+                            <div className="flex flex-col items-end gap-1.5">
                             <Input
                                 type="number"
                                 min="1"
                                 value={item.quantity}
                                 onChange={(e) => {
                                     const value = parseInt(e.target.value);
-                                    updateCartQuantity(item.id, isNaN(value) ? 1 : value);
+                                    updateCartQuantity(item.id, value);
                                 }}
                                 aria-label={`Jumlah item ${item.name}`}
-                                className="w-16"
+                                className={clsx(
+                                    "w-16",
+                                    {
+                                        'border-destructive': Number.isNaN(item.quantity),
+                                    },
+                                )}
+                      
                             />
+                            <p id="error-message"
+                                className={clsx(
+                                    {
+                                        'hidden': !Number.isNaN(item.quantity),
+                                    },
+                                    {
+                                        'text-sm text-destructive': Number.isNaN(item.quantity),
+                                    },
+                                )}
+                            >
+                                Please enter a valid number
+                            </p>
+                            </div>
                             <Button
                                 size="icon"
                                 variant="ghost"

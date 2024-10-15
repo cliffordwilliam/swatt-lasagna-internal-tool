@@ -2,11 +2,9 @@
 
 import { useState } from 'react';
 import { useItems } from "@/hooks/useItems";
-import { useDebouncedCallback } from 'use-debounce';
 import { formatHarga } from '@/utils/formatHarga';
 import { FoundItemCard } from "./foundItemCard";
 import { CartItemCard } from "./cartItemCard";
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
     Card,
@@ -15,38 +13,40 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
+import { ComboboxDemo } from "@/components/combobox";
+import { Item } from '@prisma/client';
 
 export function OrderForm() {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [debouncedQuery, setDebouncedQuery] = useState(searchQuery);
-    const { item, isError, isLoading } = useItems(debouncedQuery);
+    const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+    const { items, isError, isLoading } = useItems();
     const [quantity, setQuantity] = useState(1)
     const [cart, setCart] = useState<{ id: string, name: string, price: number, quantity: number }[]>([])
 
-    const handleSearch = useDebouncedCallback((eventTargetValue: string) => {
-        setDebouncedQuery(eventTargetValue);
-    }, 1000);
-
-    const addToCart = (product: { id: string, name: string, price: number }) => {
+    const addToCart = (product: { id: string; name: string; price: number }) => {
         setCart(prevCart => {
-            const existingItem = prevCart.find(item => item.id === product.id)
+            const existingItem = prevCart.find(item => item.id === product.id);
+            const validQuantity = Number.isNaN(quantity) || quantity <= 0 ? 1 : quantity; // Default to 1 if invalid
+
             if (existingItem) {
                 return prevCart.map(item =>
-                    item.id === product.id ? { ...item, quantity: item.quantity + quantity } : item
-                )
+                    item.id === product.id ? { ...item, quantity: item.quantity + validQuantity } : item
+                );
             } else {
-                return [...prevCart, { ...product, quantity }]
+                return [...prevCart, { ...product, quantity: validQuantity }];
             }
-        })
-        setQuantity(1)
+        });
+        setQuantity(1); // Reset quantity after adding to cart
     }
 
     const updateCartQuantity = (id: string, newQuantity: number) => {
+        // Do this later on submission, let user have nan in input
+        // const validNewQuantity = Number.isNaN(newQuantity) || newQuantity <= 0 ? 1 : newQuantity; // Default to 1 if invalid
+
         setCart(prevCart =>
             prevCart.map(item =>
-                item.id === id ? { ...item, quantity: Math.max(1, newQuantity) } : item
+                item.id === id ? { ...item, quantity: newQuantity } : item
             )
-        )
+        );
     }
 
     const removeFromCart = (id: string) => {
@@ -56,14 +56,10 @@ export function OrderForm() {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0)
     const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
 
-
-
     let content;
     if (isError) {
         content = (
             <FoundItemCard
-                title="Gagal"
-                description="Tolong coba lagi."
                 isError={true}
                 setQuantity={setQuantity}
                 quantity={quantity}
@@ -73,20 +69,16 @@ export function OrderForm() {
     } else if (isLoading) {
         content = (
             <FoundItemCard
-                title=""
-                description=""
                 isLoading={true}
                 setQuantity={setQuantity}
                 quantity={quantity}
                 addToCart={addToCart}
             />
         );
-    } else if (item) {
+    } else if (selectedItem) {
         content = (
             <FoundItemCard
-                title={item.nama}
-                description={formatHarga(item.harga)}
-                item={item}
+                item={selectedItem}
                 setQuantity={setQuantity}
                 quantity={quantity}
                 addToCart={addToCart}
@@ -95,8 +87,6 @@ export function OrderForm() {
     } else {
         content = (
             <FoundItemCard
-                title="Item Tidak Ketemu."
-                description={formatHarga(0)}
                 isDisabled={true}
                 setQuantity={setQuantity}
                 quantity={quantity}
@@ -104,6 +94,17 @@ export function OrderForm() {
             />
         );
     }
+
+    const handleFrameworkSelect = (value: string) => {
+        const foundItem = items?.find(item => item.id === value) || null;
+        setSelectedItem(foundItem);
+    }
+
+    const transformedItems = items?.map((item) => ({
+        value: item.nama,
+        label: item.nama,
+    })) || [];
+
 
     return (
         <>
@@ -116,15 +117,9 @@ export function OrderForm() {
                     <CardContent>
                         <div className="grid w-full items-center gap-1.5">
                             <Label htmlFor="item-name">Nama Item</Label>
-                            <Input
-                                type="text"
-                                id="item-name"
-                                placeholder="Lasagna..."
-                                value={searchQuery}
-                                onChange={(e) => {
-                                    setSearchQuery(e.target.value);
-                                    handleSearch(e.target.value);
-                                }}
+                            <ComboboxDemo
+                                frameworks={transformedItems}
+                                onSelect={handleFrameworkSelect}
                             />
                         </div>
                     </CardContent>

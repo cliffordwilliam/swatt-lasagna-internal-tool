@@ -1,10 +1,10 @@
 import { auth } from '@clerk/nextjs/server';
-import { NextResponse, NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = 'force-dynamic';  // Force dynamic rendering
 
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
         const { userId } = auth();
 
@@ -13,16 +13,7 @@ export async function GET(request: NextRequest) {
         }
 
         // TODO: Make this dynamic later when I need to use this again other than the order form
-        const { searchParams } = request.nextUrl;
-        const nama = searchParams.get('nama') || '';
-        const data = await prisma.item.findFirst({
-            where: {
-                nama: {
-                    contains: nama,
-                    mode: 'insensitive',
-                },
-            },
-        });
+        const data = await prisma.item.findMany();
 
         return NextResponse.json(data, { status: 200 });
     } catch (error) {
