@@ -95,7 +95,7 @@ export function OrderForm() {
     }
 
     const handleFrameworkSelect = (value: string) => {
-        const foundItem = items?.find(item => item.id === value) || null;
+        const foundItem = items?.find(item => item.nama === value) || null;
         setSelectedItem(foundItem);
     }
 
