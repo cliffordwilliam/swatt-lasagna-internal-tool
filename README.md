@@ -5,7 +5,7 @@
 3. delete all tables
 4. push new schema to remote database
 5. generate client again
-5. seed
+6. seed
 
 Delete all row works if node_env is in development
 

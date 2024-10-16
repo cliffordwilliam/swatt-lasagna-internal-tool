@@ -1,13 +1,18 @@
-import { OrderForm } from './_components/orderForm'
+import { getItems } from "@/lib/data";
+import { auth } from "@clerk/nextjs/server";
+import { Form } from "./_components/form";
 
 export default async function Page() {
-    return (
-        <div className='h-full py-6 grid gap-4'>
-            <h1 className="whitespace-nowrap text-2xl font-semibold tracking-tight">
-                Buat Order Baru
-            </h1>
-            <p className="text-muted-foreground">Buat Order baru di sini, cari nama item nya dulu.</p>
-            <OrderForm />
-        </div>
-    );
+  const userId = auth().userId;
+  // Artificially delay a response for testing skeleton
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
+  const items = await getItems(userId);
+
+  return (
+    <>
+      <div className="grid h-full gap-4 p-6">
+        <Form items={items} />
+      </div>
+    </>
+  );
 }

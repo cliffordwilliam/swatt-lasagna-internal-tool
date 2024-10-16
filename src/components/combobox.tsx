@@ -1,10 +1,11 @@
-"use client"
-// TODO: Refacor this to be dynamic not only the items in order form
-import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+"use client";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
+import * as React from "react";
+import { Check, ChevronsUpDown } from "lucide-react";
+
+import { useMediaQuery } from "usehooks-ts";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -12,83 +13,148 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from "@/components/ui/command"
+} from "@/components/ui/command";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
-import { Item } from '@prisma/client';
+} from "@/components/ui/popover";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
+import {
+  SheetTitle,
+  SheetDescription,
+  SheetHeader,
+} from "@/components/ui/sheet";
 
-// Define the type for individual framework items
-interface Framework {
-  value: string
-  label: string
+interface ComboboxItem {
+  value: string;
+  label: string;
 }
 
-// The component now uses the defined props interface
-export function ComboboxDemo(
-  { 
-    frameworks = [], 
-    setSelectedItem,
-    selectedItem,
-    items,
-   }: 
-   {
-    frameworks?: Framework[] // Optional prop
-    setSelectedItem: (selectedItem: Item | null) => void;
-    selectedItem: Item | null;
-    items: Item[] | undefined;
+export function ComboBoxResponsive({
+  placeholderItemName,
+  comboboxItems,
+  selectedValue,
+  setSelectedValue,
+}: {
+  placeholderItemName: string;
+  comboboxItems: ComboboxItem[];
+  selectedValue: string;
+  setSelectedValue: (selectedValue: string) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  if (isDesktop) {
+    return (
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className="w-[200px] justify-between"
+          >
+            {selectedValue
+              ? comboboxItems.find((item) => item.value === selectedValue)
+                  ?.label
+              : `Pilih ${placeholderItemName}...`}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-[200px] p-0">
+          <Command>
+            <CommandInput placeholder={`Cari ${placeholderItemName}...`} />
+            <CommandList>
+              <CommandEmpty>{placeholderItemName} tidak ketemu.</CommandEmpty>
+              <CommandGroup>
+                {comboboxItems.map((item) => (
+                  <CommandItem
+                    key={item.value}
+                    value={item.label} // Use label for search
+                    onSelect={(currentLabel: string) => {
+                      const currentValue = comboboxItems.find(
+                        (item) => item.label === currentLabel,
+                      )!.value; // Ensure it exists
+                      setSelectedValue(
+                        currentValue === selectedValue ? "" : currentValue,
+                      );
+                      setOpen(false);
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        selectedValue === item.value
+                          ? "opacity-100"
+                          : "opacity-0",
+                      )}
+                    />
+                    {item.label}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    );
   }
-) {
-  const [open, setOpen] = React.useState(false)
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
+    <Drawer open={open} onOpenChange={setOpen}>
+      <DrawerTrigger asChild>
         <Button
           variant="outline"
           role="combobox"
           aria-expanded={open}
           className="w-[200px] justify-between"
         >
-          {selectedItem
-            ? frameworks.find((framework) => framework.value === selectedItem.nama)?.label
-            : "Pilih Item..."}
+          {selectedValue
+            ? comboboxItems.find((item) => item.value === selectedValue)?.label
+            : `Pilih ${placeholderItemName}...`}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0">
+      </DrawerTrigger>
+      <DrawerContent className="p-0">
+        <SheetHeader className="p-4">
+          <SheetTitle>Laci Item</SheetTitle>
+          <SheetDescription>Semua item di dalam laci ini</SheetDescription>
+        </SheetHeader>
         <Command>
-          <CommandInput placeholder="Cari Item..." />
+          <CommandInput placeholder={`Cari ${placeholderItemName}...`} />
           <CommandList>
-            <CommandEmpty>Item kosong.</CommandEmpty>
+            <CommandEmpty>{placeholderItemName} tidak ketemu.</CommandEmpty>
             <CommandGroup>
-              {frameworks.map((framework) => (
+              {comboboxItems.map((item) => (
                 <CommandItem
-                  key={framework.value}
-                  value={framework.value}
-                  onSelect={(currentValue) => {
-                    if (currentValue === framework.value) {
-                      const foundItem = items?.find(item => item.nama === currentValue) || null;
-                      setSelectedItem(foundItem)
-                    }
-                    setOpen(false)
+                  key={item.value}
+                  value={item.label}
+                  onSelect={(currentLabel: string) => {
+                    const currentValue = comboboxItems.find(
+                      (item) => item.label === currentLabel,
+                    )!.value;
+                    setSelectedValue(
+                      currentValue === selectedValue ? "" : currentValue,
+                    );
+                    setOpen(false);
                   }}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      selectedItem?.nama === framework.value ? "opacity-100" : "opacity-0"
+                      selectedValue === item.value
+                        ? "opacity-100"
+                        : "opacity-0",
                     )}
                   />
-                  {framework.label}
+                  {item.label}
                 </CommandItem>
               ))}
             </CommandGroup>
           </CommandList>
         </Command>
-      </PopoverContent>
-    </Popover>
-  )
+      </DrawerContent>
+    </Drawer>
+  );
 }
