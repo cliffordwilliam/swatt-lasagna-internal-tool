@@ -1,5 +1,6 @@
-import { Header } from "./_components/header";
+import { Aside } from "./_components/aside";
 import { Footer } from "./_components/footer";
+import { Header } from "./_components/header";
 
 export default function DashboardLayout({
   children,
@@ -9,9 +10,9 @@ export default function DashboardLayout({
   return (
     <>
       <Header />
-      <div className="flex-1">
-        {/* // TODO: Make side bar for global navigation later when I have more than 1 page */}
-        <main className="container mx-auto h-full">{children}</main>
+      <div className="flex flex-1 bg-muted/40">
+        <Aside />
+        <main className="container mx-auto h-full flex-1">{children}</main>
       </div>
       <Footer />
     </>

@@ -1,3 +1,4 @@
+import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
@@ -29,7 +30,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} flex h-dvh min-h-screen flex-col antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} flex h-dvh min-h-dvh flex-col antialiased`}
         >
           <ThemeProvider
             attribute="class"
@@ -38,6 +39,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             {children}
+            <Toaster />
           </ThemeProvider>
         </body>
       </html>

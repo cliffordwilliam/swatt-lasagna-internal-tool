@@ -1,10 +1,8 @@
 "use client";
 
-import * as React from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
+import * as React from "react";
 
-import { useMediaQuery } from "usehooks-ts";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -14,17 +12,19 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import {
-  SheetTitle,
   SheetDescription,
   SheetHeader,
+  SheetTitle,
 } from "@/components/ui/sheet";
+import { cn } from "@/lib/utils";
+import { useMediaQuery } from "usehooks-ts";
 
 interface ComboboxItem {
   value: string;
@@ -53,16 +53,18 @@ export function ComboBoxResponsive({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="w-[200px] justify-between"
+            className="w-full justify-between"
           >
-            {selectedValue
-              ? comboboxItems.find((item) => item.value === selectedValue)
-                  ?.label
-              : `Pilih ${placeholderItemName}...`}
+            <span className="truncate">
+              {selectedValue
+                ? comboboxItems.find((item) => item.value === selectedValue)
+                    ?.label
+                : `Pilih ${placeholderItemName}...`}
+            </span>
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[200px] p-0">
+        <PopoverContent className="PopoverContent w-full p-0">
           <Command>
             <CommandInput placeholder={`Cari ${placeholderItemName}...`} />
             <CommandList>
@@ -108,11 +110,14 @@ export function ComboBoxResponsive({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-[200px] justify-between"
+          className="w-full justify-between"
         >
-          {selectedValue
-            ? comboboxItems.find((item) => item.value === selectedValue)?.label
-            : `Pilih ${placeholderItemName}...`}
+          <span className="truncate">
+            {selectedValue
+              ? comboboxItems.find((item) => item.value === selectedValue)
+                  ?.label
+              : `Pilih ${placeholderItemName}...`}
+          </span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </DrawerTrigger>
