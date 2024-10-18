@@ -5,7 +5,7 @@ import { Form } from "./_components/form";
 export default async function Page() {
   const userId = auth().userId;
   // Artificially delay a response for testing skeleton
-  await new Promise((resolve) => setTimeout(resolve, 3000));
+  // await new Promise((resolve) => setTimeout(resolve, 3000));
   const { items, pickupDeliveries, pembayarans } =
     await fetchCreateOrderFormData(userId);
 
