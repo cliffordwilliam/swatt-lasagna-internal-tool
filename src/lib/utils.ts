@@ -11,3 +11,13 @@ export const formatCurrency = (amount: number) => {
     currency: "IDR",
   });
 };
+
+export const formatDate = (date: Date | undefined) => {
+  if (!date) return "Tidak ada tanggal tersedia";
+
+  return date.toLocaleDateString("id-ID", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};

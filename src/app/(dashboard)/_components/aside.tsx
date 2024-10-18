@@ -6,7 +6,7 @@ import { AsideItem } from "./aside-item";
 export function Aside() {
   // List of navigation items
   const navItems = [
-    { href: "/", icon: Home, label: "Dashboard" },
+    { href: "/", icon: Home, label: "Dasbor" },
     { href: "/orders", icon: ShoppingCart, label: "Orders" },
   ];
 
