@@ -4,33 +4,60 @@ import { PageTitle } from "@/components/page-title";
 import { Button } from "@/components/ui/button";
 
 import { useToast } from "@/hooks/use-toast";
-import { formatCurrency, formatDate } from "@/lib/utils";
-import { Item, Pembayaran, PickupDelivery } from "@prisma/client";
+import {
+  CartItem,
+  postOrderFormType,
+  postPeopleFormType,
+} from "@/lib/definitions";
+import {
+  Item,
+  Order,
+  OrderStatus,
+  Pembayaran,
+  People,
+  PickupDelivery,
+} from "@prisma/client";
+import { ReloadIcon } from "@radix-ui/react-icons";
 import { useMemo, useState } from "react";
 import { CartCard } from "./cart-card";
 import { ComboboxCard } from "./combobox-card";
 import { DatePickerCard } from "./date-picker-card";
-import { DummyCard } from "./dummy-card";
 import { ItemFinderCard } from "./item-finder-card";
-
-interface CartItem extends Item {
-  quantity: number;
-}
+import { PeopleCard } from "./people-card";
+import { StatusAndNoteCard } from "./status-and-note-card";
 
 export function Form({
   items,
   pickupDeliveries,
   pembayarans,
+  peoples,
+  orderStatuses,
+  onPostOrderFormSubmit,
+  onPostPeopleFormSubmit,
 }: {
   items: Item[];
   pickupDeliveries: PickupDelivery[];
   pembayarans: Pembayaran[];
+  peoples: People[];
+  orderStatuses: OrderStatus[];
+  onPostOrderFormSubmit: (data: postOrderFormType) => Promise<Order>;
+  onPostPeopleFormSubmit: (data: postPeopleFormType) => Promise<People>;
 }) {
-  const [orderDate, setOrderDate] = useState<Date | undefined>();
-  const [deliveryDate, setDeliveryDate] = useState<Date | undefined>();
+  // States
+  const [orderDate, setOrderDate] = useState<Date>();
+  const [deliveryDate, setDeliveryDate] = useState<Date>();
   const [selectedItemId, setSelectedItemId] = useState("");
   const [selectedItemAmount, setSelectedItemAmount] = useState(0);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [selectedPickupDeliveryId, setSelectedPickupDeliveryId] = useState("");
+  const [selectedPembayaranId, setSelectedPembayaranId] = useState("");
+  const [selectedPembeliId, setSelectedPembeliId] = useState("");
+  const [selectedPenerimaId, setSelectedPenerimaId] = useState("");
+  const [selectedOrderStatusId, setSelectedOrderStatusId] = useState("");
+  const [noteValue, setNoteValue] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Memo
   const { totalItems, totalPrice } = useMemo(() => {
     return cart.reduce(
       (acc, item) => {
@@ -41,56 +68,73 @@ export function Form({
       { totalItems: 0, totalPrice: 0 },
     );
   }, [cart]);
-  const [selectedPickupDeliveryId, setSelectedPickupDeliveryId] = useState("");
-  const [selectedPembayaranId, setSelectedPembayaranId] = useState("");
 
+  // Hooks
   const { toast } = useToast();
 
-  // Turn pickupDeliveries into combobox items format
+  // Reformat for combobox input
   const pickupDeliveriesComboboxItems = pickupDeliveries.map((item) => ({
     value: item.id,
     label: item.name,
   }));
-
-  // Turn pickupDeliveries into combobox items format
   const pembayaransComboboxItems = pembayarans.map((item) => ({
     value: item.id,
     label: item.name,
   }));
-  const onOrderFormSubmit = () => {
-    const selectedPickupDelivery = pickupDeliveries.find(
-      (item) => item.id === selectedPickupDeliveryId,
-    );
-    const selectedPembayaran = pembayarans.find(
-      (item) => item.id === selectedPembayaranId,
-    );
+  const peopleComboboxItems = peoples.map((item) => ({
+    value: item.id,
+    label: item.nama,
+  }));
+  const orderStatusesComboboxItems = orderStatuses.map((item) => ({
+    value: item.id,
+    label: item.name,
+  }));
 
-    // Just for show for now
-    const newItems = cart.map(({ id, createdAt, updatedAt, ...rest }) => ({
-      ...rest,
-      harga: formatCurrency(rest.harga),
-    }));
-
-    const data = {
-      tanggalOrder: formatDate(orderDate),
-      tanggalKirim: formatDate(deliveryDate),
-      totalPembelian: totalItems,
-      grandTotal: formatCurrency(totalPrice),
-      items: newItems,
-      pickupDelivery: selectedPickupDelivery?.name,
-      metodePembayaran: selectedPembayaran?.name,
-    };
-    toast({
-      title: "Ini pura pura di kumpulin ya:",
-      description: (
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
+  // Form submit callback
+  const onClientPostOrderFormSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      if (!orderDate) {
+        throw new Error("OrderDate undefined");
+      }
+      if (!deliveryDate) {
+        throw new Error("tanggalKirim undefined");
+      }
+      const data = {
+        pembeliId: selectedPembeliId,
+        penerimaId: selectedPenerimaId,
+        tanggalOrder: orderDate,
+        tanggalKirim: deliveryDate,
+        totalPembelian: totalItems,
+        pickupDeliveryId: selectedPickupDeliveryId,
+        ongkir: 0,
+        grandTotal: totalPrice,
+        pembayaranId: selectedPembayaranId,
+        items: cart,
+        orderStatusId: selectedOrderStatusId,
+        note: noteValue,
+      };
+      console.log(data);
+      // Tell parent about it
+      await onPostOrderFormSubmit(data);
+      toast({
+        title: "Berhasil",
+        description: `Order telah ditambahkan.`,
+      });
+      resetStates();
+    } catch (error) {
+      console.error("Error submitting data:", error);
+      toast({
+        title: "Error",
+        description: "Gagal menambahkan data.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  // ItemFinderCard tells me to update CartCard
+  // ItemFinderCard child tells me to update CartCard child
   const onAddToCartPress = () => {
     // Check if selected item exists, it should be
     const selectedItem = items.find((item) => item.id === selectedItemId);
@@ -129,6 +173,18 @@ export function Form({
     setSelectedItemAmount(0);
   };
 
+  const resetStates = () => {
+    setOrderDate(undefined);
+    setDeliveryDate(undefined);
+    setSelectedItemId("");
+    setSelectedItemAmount(0);
+    setCart([]);
+    setSelectedPickupDeliveryId("");
+    setSelectedPembayaranId("");
+    setSelectedPembeliId("");
+    setSelectedPenerimaId("");
+  };
+
   return (
     <>
       <PageTitle backButtonHref={"/orders"} pageTitle={"Buat Order"} />
@@ -136,6 +192,13 @@ export function Form({
       <div className="grid gap-4 md:grid-cols-[1fr_250px] lg:grid-cols-3 lg:gap-8">
         {/* Left col */}
         <div className="grid auto-rows-max items-start gap-4 lg:col-span-2 lg:gap-8">
+          <StatusAndNoteCard
+            comboboxItems={orderStatusesComboboxItems}
+            selectedItemId={selectedOrderStatusId}
+            setSelectedItemId={setSelectedOrderStatusId}
+            noteValue={noteValue}
+            setNoteValue={setNoteValue}
+          />
           <div className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:gap-8">
             <DatePickerCard
               cardTitle={"Tanggal Order"}
@@ -185,13 +248,37 @@ export function Form({
             selectedItemId={selectedPembayaranId}
             setSelectedItemId={setSelectedPembayaranId}
           />
-          <DummyCard />
+          <PeopleCard
+            isBuyer={true}
+            comboboxItems={peopleComboboxItems}
+            selectedItemId={selectedPembeliId}
+            setSelectedItemId={setSelectedPembeliId}
+            onPostPeopleFormSubmit={onPostPeopleFormSubmit}
+          />
+          <PeopleCard
+            isBuyer={false}
+            comboboxItems={peopleComboboxItems}
+            selectedItemId={selectedPenerimaId}
+            setSelectedItemId={setSelectedPenerimaId}
+            onPostPeopleFormSubmit={onPostPeopleFormSubmit}
+          />
         </div>
       </div>
       {/* Flex foot */}
       <div className="mt-4 flex items-center gap-2">
-        <Button variant="secondary">Batal</Button>
-        <Button onClick={() => onOrderFormSubmit()}>Simpan Order</Button>
+        <Button variant="secondary" onClick={() => resetStates()}>
+          Batal
+        </Button>
+        {isSubmitting ? (
+          <Button disabled>
+            <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
+            Tunggu ya...
+          </Button>
+        ) : (
+          <Button onClick={() => onClientPostOrderFormSubmit()}>
+            Simpan Order
+          </Button>
+        )}
       </div>
     </>
   );

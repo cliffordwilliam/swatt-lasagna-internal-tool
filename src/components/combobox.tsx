@@ -36,14 +36,91 @@ export function ComboBoxResponsive({
   comboboxItems,
   selectedValue,
   setSelectedValue,
+  groupItems = true,
 }: {
   placeholderItemName: string;
   comboboxItems: ComboboxItem[];
   selectedValue: string;
   setSelectedValue: (selectedValue: string) => void;
+  groupItems?: boolean;
 }) {
   const [open, setOpen] = React.useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
+
+  // Function to group items by their first word
+  const groupItemsByType = (comboboxItems: ComboboxItem[]) => {
+    return comboboxItems.reduce<{
+      [key: string]: ComboboxItem[];
+    }>((accumulator, item) => {
+      const firstWord = item.label.split(" ")[0];
+      if (!accumulator[firstWord]) {
+        accumulator[firstWord] = [];
+      }
+      accumulator[firstWord].push(item);
+      return accumulator;
+    }, {});
+  };
+
+  // Grouped items if grouping is enabled
+  const groupedItems = groupItems ? groupItemsByType(comboboxItems) : null;
+
+  const renderItems = () => {
+    if (groupItems) {
+      // If grouping is enabled, map through grouped items
+      return Object.keys(groupedItems!).map((group) => (
+        <CommandGroup heading={group} key={group}>
+          {groupedItems![group].map((item) => (
+            <CommandItem
+              key={item.value}
+              value={item.label}
+              onSelect={(currentLabel: string) => {
+                const currentValue = comboboxItems.find(
+                  (item) => item.label === currentLabel,
+                )!.value; // Ensure it exists
+                setSelectedValue(
+                  currentValue === selectedValue ? "" : currentValue,
+                );
+                setOpen(false);
+              }}
+            >
+              <Check
+                className={cn(
+                  "mr-2 h-4 w-4",
+                  selectedValue === item.value ? "opacity-100" : "opacity-0",
+                )}
+              />
+              {item.label}
+            </CommandItem>
+          ))}
+        </CommandGroup>
+      ));
+    } else {
+      // If not grouping, map through all items normally
+      return comboboxItems.map((item) => (
+        <CommandItem
+          key={item.value}
+          value={item.label}
+          onSelect={(currentLabel: string) => {
+            const currentValue = comboboxItems.find(
+              (item) => item.label === currentLabel,
+            )!.value; // Ensure it exists
+            setSelectedValue(
+              currentValue === selectedValue ? "" : currentValue,
+            );
+            setOpen(false);
+          }}
+        >
+          <Check
+            className={cn(
+              "mr-2 h-4 w-4",
+              selectedValue === item.value ? "opacity-100" : "opacity-0",
+            )}
+          />
+          {item.label}
+        </CommandItem>
+      ));
+    }
+  };
 
   if (isDesktop) {
     return (
@@ -69,33 +146,7 @@ export function ComboBoxResponsive({
             <CommandInput placeholder={`Cari ${placeholderItemName}...`} />
             <CommandList>
               <CommandEmpty>{placeholderItemName} tidak ketemu.</CommandEmpty>
-              <CommandGroup>
-                {comboboxItems.map((item) => (
-                  <CommandItem
-                    key={item.value}
-                    value={item.label} // Use label for search
-                    onSelect={(currentLabel: string) => {
-                      const currentValue = comboboxItems.find(
-                        (item) => item.label === currentLabel,
-                      )!.value; // Ensure it exists
-                      setSelectedValue(
-                        currentValue === selectedValue ? "" : currentValue,
-                      );
-                      setOpen(false);
-                    }}
-                  >
-                    <Check
-                      className={cn(
-                        "mr-2 h-4 w-4",
-                        selectedValue === item.value
-                          ? "opacity-100"
-                          : "opacity-0",
-                      )}
-                    />
-                    {item.label}
-                  </CommandItem>
-                ))}
-              </CommandGroup>
+              {renderItems()}
             </CommandList>
           </Command>
         </PopoverContent>
@@ -130,33 +181,7 @@ export function ComboBoxResponsive({
           <CommandInput placeholder={`Cari ${placeholderItemName}...`} />
           <CommandList>
             <CommandEmpty>{placeholderItemName} tidak ketemu.</CommandEmpty>
-            <CommandGroup>
-              {comboboxItems.map((item) => (
-                <CommandItem
-                  key={item.value}
-                  value={item.label}
-                  onSelect={(currentLabel: string) => {
-                    const currentValue = comboboxItems.find(
-                      (item) => item.label === currentLabel,
-                    )!.value;
-                    setSelectedValue(
-                      currentValue === selectedValue ? "" : currentValue,
-                    );
-                    setOpen(false);
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      selectedValue === item.value
-                        ? "opacity-100"
-                        : "opacity-0",
-                    )}
-                  />
-                  {item.label}
-                </CommandItem>
-              ))}
-            </CommandGroup>
+            {renderItems()}
           </CommandList>
         </Command>
       </DrawerContent>

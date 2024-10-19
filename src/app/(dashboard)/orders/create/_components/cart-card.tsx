@@ -5,7 +5,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -14,7 +13,9 @@ import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
+  TableCaption,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -70,6 +71,7 @@ export function CartCard({
         </CardHeader>
         <CardContent>
           <Table>
+            <TableCaption>Semua Items di keranjang.</TableCaption>
             <TableHeader>
               <TableRow>
                 <TableHead>Nama</TableHead>
@@ -130,21 +132,20 @@ export function CartCard({
                 ))}
               </TableBody>
             )}
+            <TableFooter>
+              <TableRow>
+                <TableCell colSpan={2}>Jumlah Item</TableCell>
+                <TableCell className="text-right">{totalItems}</TableCell>
+              </TableRow>
+              <TableRow>
+                <TableCell colSpan={2}>Total Harga</TableCell>
+                <TableCell className="text-right">
+                  {formatCurrency(totalPrice)}
+                </TableCell>
+              </TableRow>
+            </TableFooter>
           </Table>
         </CardContent>
-        <CardFooter className="grid gap-3 border-t p-4 p-6 text-sm">
-          <div className="font-semibold">Info Keranjang</div>
-          <ul className="grid gap-3">
-            <li className="flex items-center justify-between">
-              <span className="text-muted-foreground">Jumlah Item</span>
-              <span>{totalItems}</span>
-            </li>
-            <li className="flex items-center justify-between">
-              <span className="text-muted-foreground">Total Harga</span>
-              <span>{formatCurrency(totalPrice)}</span>
-            </li>
-          </ul>
-        </CardFooter>
       </Card>
     </>
   );

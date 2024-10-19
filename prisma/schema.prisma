@@ -1,50 +1,46 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
- 
+
 datasource db {
-  provider = "postgresql"
-  // Uses connection pooling
-  url = env("POSTGRES_PRISMA_URL")
-  // Uses direct connection, ⚠️ make sure to keep this to `POSTGRES_URL_NON_POOLING`
-  // or you'll have dangling databases from migrations
-  directUrl = env("POSTGRES_URL_NON_POOLING")
+    provider  = "postgresql"
+    // Uses connection pooling
+    url       = env("POSTGRES_PRISMA_URL")
+    // Uses direct connection, ⚠️ make sure to keep this to `POSTGRES_URL_NON_POOLING`
+    // or you'll have dangling databases from migrations
+    directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 model Item {
-    id        String          @id @default(cuid())
+    id        String      @id @default(cuid())
     nama      String
     harga     Int
     orders    OrderItem[]
-    createdAt DateTime        @default(now())
-    updatedAt DateTime        @updatedAt
-}
-
-enum OrderStatus {
-  downpayment
-  belum_bayar
-  lunas
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @updatedAt
 }
 
 model Order {
-    id               String          @id @default(cuid())
-    pembeli          Pembeli         @relation(fields: [pembeliId], references: [id])
+    id               String         @id @default(cuid())
+    pembeli          People         @relation("PembeliOrders", fields: [pembeliId], references: [id])
     pembeliId        String
-    penerima         Penerima        @relation(fields: [penerimaId], references: [id])
+    penerima         People         @relation("PenerimaOrders", fields: [penerimaId], references: [id])
     penerimaId       String
     tanggalOrder     DateTime
     tanggalKirim     DateTime
-    totalPembelian   Float
-    pickupDelivery   PickupDelivery  @relation(fields: [pickupDeliveryId], references: [id])
+    totalPembelian   Int
+    pickupDelivery   PickupDelivery @relation(fields: [pickupDeliveryId], references: [id])
     pickupDeliveryId String
-    ongkir           Float
-    grandTotal       Float
-    pembayaran       Pembayaran      @relation(fields: [pembayaranId], references: [id])
+    ongkir           Int
+    grandTotal       Int
+    pembayaran       Pembayaran     @relation(fields: [pembayaranId], references: [id])
     pembayaranId     String
     items            OrderItem[]
-    status           OrderStatus
-    createdAt        DateTime        @default(now())
-    updatedAt        DateTime        @updatedAt
+    status           OrderStatus    @relation(fields: [orderStatusId], references: [id])
+    orderStatusId    String
+    note             String
+    createdAt        DateTime       @default(now())
+    updatedAt        DateTime       @updatedAt
 }
 
 model OrderItem {
@@ -57,24 +53,15 @@ model OrderItem {
     @@id([orderId, itemId])
 }
 
-model Pembeli {
-    id        String   @id @default(cuid())
-    nama      String
-    alamat    String
-    noHp      String
-    orders    Order[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-}
-
-model Penerima {
-    id        String   @id @default(cuid())
-    nama      String
-    alamat    String
-    noHp      String
-    orders    Order[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+model People {
+    id             String   @id @default(cuid())
+    nama           String
+    alamat         String
+    noHp           String
+    pembeliOrders  Order[]  @relation("PembeliOrders")
+    penerimaOrders Order[]  @relation("PenerimaOrders")
+    createdAt      DateTime @default(now())
+    updatedAt      DateTime @updatedAt
 }
 
 model Pembayaran {
@@ -86,6 +73,14 @@ model Pembayaran {
 }
 
 model PickupDelivery {
+    id        String   @id @default(cuid())
+    name      String   @unique
+    orders    Order[]
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+}
+
+model OrderStatus {
     id        String   @id @default(cuid())
     name      String   @unique
     orders    Order[]

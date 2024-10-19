@@ -121,6 +121,46 @@ async function main() {
     ),
   );
   console.log("Seeded Pembayarans:", createdPembayarans);
+
+  // Data for peoples
+  const Peoples = [
+    {
+      nama: "Whitney Shannon",
+      alamat: "Ap #550-9194 Odio. St.",
+      noHp: "(257) 553-3602",
+    },
+    {
+      nama: "Octavia Curtis",
+      alamat: "Ap #373-7046 Nullam Ave",
+      noHp: "(778) 543-3708",
+    },
+    {
+      nama: "Harding Holder",
+      alamat: "141-9846 Sem, Road",
+      noHp: "1-562-460-5848",
+    },
+  ];
+
+  // Seed payments
+  const createdPeoples = await Promise.all(
+    Peoples.map((people) => prisma.people.create({ data: people })),
+  );
+  console.log("Seeded Peoples:", createdPeoples);
+
+  // Data for payments
+  const OrderStatuses = [
+    { name: "Downpayment" },
+    { name: "Belum bayar" },
+    { name: "Lunas" },
+  ];
+
+  // Seed payments
+  const createdOrderStatuses = await Promise.all(
+    OrderStatuses.map((orderStatus) =>
+      prisma.orderStatus.create({ data: orderStatus }),
+    ),
+  );
+  console.log("Seeded OrderStatuses:", createdOrderStatuses);
 }
 
 // Execute the main function and handle errors
