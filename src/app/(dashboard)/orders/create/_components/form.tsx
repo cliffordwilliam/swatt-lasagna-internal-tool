@@ -110,11 +110,14 @@ export function Form({
         ongkir: 0,
         grandTotal: totalPrice,
         pembayaranId: selectedPembayaranId,
-        items: cart,
+        items: cart.map(item => ({
+            ...item,
+            createdAt: new Date(item.createdAt),
+            updatedAt: new Date(item.updatedAt),
+          })),
         orderStatusId: selectedOrderStatusId,
         note: noteValue,
       };
-      console.log(data);
       // Tell parent about it
       await onPostOrderFormSubmit(data);
       toast({
