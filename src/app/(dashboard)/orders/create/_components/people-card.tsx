@@ -74,10 +74,18 @@ export function PeopleCard({
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
 
+    // People likes to add trailling white spaces so need to remove that
+    const trimmedValues = {
+      ...values,
+      nama: values.nama.trim(),
+      alamat: values.alamat.trim(),
+      noHp: values.noHp.trim(),
+    };  
+
     setIsSubmitting(true);
     try {
       // Tell parent about it
-      const newPerson = await onPostPeopleFormSubmit(values);
+      const newPerson = await onPostPeopleFormSubmit(trimmedValues);
       toast({
         title: "Berhasil",
         description: `${newPerson.nama} telah ditambahkan.`,
