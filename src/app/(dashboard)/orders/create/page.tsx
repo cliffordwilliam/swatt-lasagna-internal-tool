@@ -17,9 +17,11 @@ export default async function Page() {
 
   async function onPostOrderFormSubmit(data: postOrderFormType) {
     "use server";
-    const newOrder = await createOrderWithItems(userId, data);
+    // For now put up here for testing
     revalidateTag("orders");
     revalidateTag("orderItems");
+    revalidateTag("peoples");
+    const newOrder = await createOrderWithItems(userId, data);
     return newOrder;
   }
 
